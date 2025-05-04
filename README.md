@@ -37,5 +37,5 @@ pip install torch_geometric==2.0.4
 
 ## Run the code
 
-All code is currently launched through `python main.py`.
+All code is currently launched through `GRASS_Intergration_Alignment_DLPFC.ipynb`.
 
