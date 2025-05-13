@@ -40,7 +40,7 @@ class GRASS_Integration(nn.Module):
     def forward(self, feats, shuf_feats, lbl_list,
                 pos_list, 
                 mps_list, nei_index_list,
-                w_intra=1, w_re=1, w_inter=1,
+                w_intra=0.1, w_re=1, w_inter=1,
                 num_samples=None,
                 num_samples_inter=None):
         

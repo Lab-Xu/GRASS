@@ -132,7 +132,7 @@ class Emb_Clustering(object):
         device: str = None, 
         nb_epochs: int = 1000,
         patience: int = 20,
-        lr: int = 0.0008,
+        lr: int = 0.001, 
         l2_coef: int = 0,
     ):
         
@@ -203,7 +203,6 @@ class Emb_Clustering(object):
         self.shuf_feats = [shuf_feat.to(self.device) for shuf_feat in self.shuf_feats]
         self.lbl_list = [lbl.to(self.device) for lbl in self.lbl_list]
 
-        # TODO: 对新的数据加入cuda.
         for i in range(len(self.st_name_list)):
             # self.nei_index_list[i] = [ni.to(self.device) for ni in self.nei_index_list[i]]
             self.mps_list[i] = [mp.to(self.device) for mp in self.mps_list[i]]

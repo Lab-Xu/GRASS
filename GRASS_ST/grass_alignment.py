@@ -114,7 +114,6 @@ def build_alignment_dictionaries(alignment_df):
 def pre_alignment(matched_nodes):
     # alignment = {matched_nodes[k]: k for k in matched_nodes.keys()}
 
-    # 预对齐方案
     data = {
         '0': list(matched_nodes.keys()),
         '1': list(matched_nodes.values()),
@@ -190,7 +189,6 @@ def get_graph(st_adata_list, slice_name_list, method_type='GraphST', platform='1
 
     adj_list = []
 
-    # 计算Adj并整合
     for slice, st_adata in zip(slice_name_list, st_adata_list):
 
         if slice==slice_name:
@@ -220,7 +218,6 @@ def find_mutual_nn(source, target, num_neighbor=20):
     _, indices_target = tree_source.query(target, k=num_neighbor)
     # print("indices_target shape:", indices_target.shape)
 
-    # 使用生成器表达式构建匹配集合，避免中间列表的创建
     match1 = {(a, b_i) for a, b in enumerate(indices_source) for b_i in b}
     match2 = {(a, b_i) for a, b in enumerate(indices_target) for b_i in b}
     mutual = match1 & set([(b, a) for a, b in match2])
@@ -271,7 +268,7 @@ class GRASS_Alignment(object):
         beta=0.01, 
         fast_mode=True,
         seed_add_step=10,
-        align_iter_num=5,
+        align_iter_num=10,
         seed=2024,
     ):
         self.st_list = st_ad_list.copy()
@@ -298,7 +295,6 @@ class GRASS_Alignment(object):
 
             self.st_list[index].obsm['embeds'] = temp_ad.obsm['embeds']
 
-            # 首先进行初步的平移、旋转和镜像
             raw_loc = self.st_list[index].obsm['spatial']
             raw_loc[:, :2] = raw_loc[:, :2] - np.median(raw_loc[:, :2], axis=0)
             self.st_list[index].obsm['spatial_pair'] = raw_loc
@@ -313,16 +309,13 @@ class GRASS_Alignment(object):
                     num_neighbor_emb=50,
                     same_cluster=False):
         
-        # 获取对齐锚点
         if len(self.slice_name_list) < 2:
             logging.warning("Not enough slices to find anchors.")
             return None
 
-        # 根据 embeds 和 relatively loc 获取对齐锚点
         for i in range(1, len(self.slice_name_list)):
             source_data = self.st_list[i - 1]
             target_data = self.st_list[i]
-            # 寻找锚点(这里寻找锚点可以借鉴Starfysh中用随机游走寻找锚点的策略)
             align_point = get_align_point(source_data, target_data, loc_name='spatial_pair', emb_name='embeds',
                                           num_neighbor_loc=num_neighbor_loc,
                                           num_neighbor_emb=num_neighbor_emb,
@@ -435,10 +428,9 @@ class GRASS_Alignment(object):
 
     def _build_graph(self, features, adj_matrix):
         """
-        生成图对象
+        Generate graph
         """
         G = nx.Graph()
-        # 添加节点并赋特征
         for index, feature in enumerate(features):
             G.add_node(index, feature=feature)
         
@@ -535,8 +527,6 @@ class GRASS_Alignment(object):
                 source_data = self.st_list[i - 1]
                 target_data = self.st_list[i]
                 matching_dict = self.source_matching_dict[source_slice_name]
-                # print("matching_dict len", len(matching_dict.keys()))
-                # 将要对齐的目标类别(list)，类别下对应的对齐锚点、目标数据集和源数据集
                 key_points_src, key_points_dst, aligned_points, aligned_points_all = ICP_3D_reconstruct(
                     source_data, target_data, source_cluster, target_cluster, matching_dict,
                     cluster_method=cluster_method)

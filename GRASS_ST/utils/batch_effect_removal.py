@@ -76,8 +76,7 @@ def batch_effect_removal(adata_concat,
     else:
         X = data_mat
     # print("X shape:{}".format(X.shape))
-    
-    # 转换为系数矩阵
+
     adata_concat.obsm[latent_key] = sparse.csr_matrix(X)
 
     # print('adata_concat:', adata_concat)

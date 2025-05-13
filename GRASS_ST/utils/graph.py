@@ -22,7 +22,6 @@ def square_euclid_distance(Z, center, temperature=100):
 def high_confidence(Z, center, tao=0.5):
     # print("Z:", Z)
     # print("center:", center)
-    # 选取高置信度
     distance_norm = torch.min(F.softmax(square_euclid_distance(Z, center), dim=1), dim=1).values
     value, _ = torch.topk(distance_norm, int(Z.shape[0] * (1 - tao)))
     H = torch.where(distance_norm <= value[-1],
@@ -44,7 +43,7 @@ def high_confidence(Z, center, tao=0.5):
 
 
 def low_confidence(Z, center, tao=0.5):
-    # 选取低置信度
+
     distance_norm = torch.min(F.softmax(square_euclid_distance(Z, center), dim=1), dim=1).values
     value, _ = torch.topk(distance_norm, int(Z.shape[0] * (1 - tao)))
     L = torch.where(distance_norm > value[-1],
@@ -172,36 +171,6 @@ def kmeans(
 
     return choice_cluster.cpu(), initial_state
 
-def calcu_neg_graph(feat, tao=0.5, 
-                    use_pca=True, n_components=20,
-                    cluster_num=None, device=None):
-
-    if use_pca:
-        from sklearn.decomposition import PCA
-        pca = PCA(n_components=n_components, random_state=2024)
-        feat = pca.fit_transform(feat.copy())
-        # print("feat type:", type(feat))
-
-    feat = torch.tensor(feat)
-    feat = feat.float()
-    feat = feat.to(device)
-    # print("X type:", type(feat))
-
-    P, center = kmeans(X=feat, num_clusters=cluster_num, distance="euclidean", device=device)
-    H = high_confidence(feat, center, tao)
-    L = low_confidence(feat, center, tao)
-    high_confidence_indices = np.array(H)
-    # print("high_confidence_indices unique:", np.unique(high_confidence_indices))
-
-    predict_y = np.array(P)
-    # 填充矩阵：相同类别为0，不同类别为1
-    matrix = np.where(predict_y[:, None] == predict_y[None, :], 0, 1)
-    # print("matrix:", matrix)
-    # 行列筛选：高置信度保留原值，低置信度对应行列置0
-    neg_matrix = matrix * high_confidence_indices[:, None] * high_confidence_indices[None, :]
-    # neg_indices = np.argwhere(neg_matrix == 1)
-    return neg_matrix
-
 
 def calcu_adj(cord, cord2=None, n_neigh=10, metric='minkowski'):
     '''
@@ -225,10 +194,7 @@ def calcu_adj(cord, cord2=None, n_neigh=10, metric='minkowski'):
     return neigh_index, neigh_graph
 
 def get_data_list(adata, st_name_list, 
-                #   intra_neigh_num_list=[10],
-                #   inter_neigh_num=10,
                   n_neigh=10,
-                  tao=0.5,
                   latent_key='X_batch_removal', 
                   input_data_key='counts',
                   spatial_key='spatial',

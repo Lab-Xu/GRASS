@@ -109,7 +109,6 @@ class GradAlign:
             # print("columns number:", len(columns))
 
             if self.fast_mode:
-                # 选择近邻点进行 alignment
                 index = list(set.union(*[set(self.G1.neighbors(node)) for node in seed_list1]) - set(seed_list1))
                 columns = list(set.union(*[set(self.G2.neighbors(node)) for node in seed_list2]) - set(seed_list2))
 
@@ -119,7 +118,6 @@ class GradAlign:
 
             seed_n_id_list = seed_list1 + seed_list2
             if len(columns) == 0 or len(index) == 0:
-                #没有要对齐的点就停止
                 break
             if len(self.alignment_dict) == len(seed_list1):
                 break
@@ -152,7 +150,6 @@ class GradAlign:
                 embedding_fin2 = embedding2.detach().numpy()
 
             # Update graph
-            # self.layer相关的部分还没有调整完
             print('\n start adding a seed nodes')
             seed_list1, seed_list2, anchor, S, adj2 = self.AddSeeds(embedding1, embedding2, index, columns, seed_list1,
                                                                     seed_list2, iteration, self.have_embed)
@@ -302,7 +299,6 @@ class GradAlign:
         seed1, seed2 = [], []
         len_sim_matrix = len(sim_matrix)
         if len_sim_matrix != 0:
-            # 表示每次迭代新增的点对数量
             T = align_func(version='const', a=int(len(self.alignment_dict) / self.seed_add_step), b=0, i=iteration)
             # print("T:", T)
             nodes1, nodes2, sims = sim_matrix[:, 0].astype(int), sim_matrix[:, 1].astype(int), sim_matrix[:, 2]

@@ -26,12 +26,6 @@ class Discriminator(nn.Module):
         sc_1 = self.f_k(h_pl, c_x).T
         sc_2 = self.f_k(h_mi, c_x).T
 
-        # print("sc_1 shape:", sc_1.shape)
-        # print("sc_2 shape:", sc_2.shape)
-
-        # sc_1 = torch.squeeze(sc_1, 1)  # 移除第 1 维，结果形状: [batch_size]
-        # sc_2 = torch.squeeze(sc_2, 1)
-
         if s_bias1 is not None:
             sc_1 += s_bias1
         if s_bias2 is not None:

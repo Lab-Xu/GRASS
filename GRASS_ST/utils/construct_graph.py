@@ -163,7 +163,6 @@ def construct_graph(adata, st_name_list,
     nei_index_dict, nei_graph_dict, feats_dict = get_data_list(
         adata, 
         st_name_list,
-        tao=tao,
         n_neigh=n_neigh,
         latent_key=latent_key,
         input_data_key=input_data_key,

@@ -16,13 +16,11 @@ def preprocess(st_list,
                ):
     
     if integ_method=='A':
-        # 整合特征矩阵
         st_adata_concat = ad.concat(st_list, label=batch_key, keys=st_name_list)
         if have_annotation:
             st_adata_concat.obs['ground_truth'] = st_adata_concat.obs['ground_truth'].astype('category')
         st_adata_concat.obs[batch_key] = st_adata_concat.obs[batch_key].astype('category')
 
-        # 数据进行标准化
         if filter_genes:
             sc.pp.filter_genes(st_adata_concat, min_counts=3)
         sc.pp.highly_variable_genes(st_adata_concat, flavor="seurat_v3", n_top_genes=n_top_genes)
@@ -47,11 +45,9 @@ def preprocess(st_list,
     
     if detect_NaN:
         if isinstance(st_adata_concat.X, np.ndarray):
-            # 如果数据是密集矩阵，直接检查和删除含NaN的列
             mask = ~np.isnan(st_adata_concat.X).any(axis=0)
             st_adata_concat = st_adata_concat[:, mask]
         else:
-            # 如果数据是稀疏矩阵，首先转换为密集格式进行检查
             dense_X = st_adata_concat.X.toarray()
             mask = ~np.isnan(dense_X).any(axis=0)
             st_adata_concat = st_adata_concat[:, mask]

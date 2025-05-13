@@ -139,8 +139,6 @@ def best_fit_transform(A, B):
     # translation
     t = centroid_B.T - np.dot(R, centroid_A.T)
 
-    # homogeneous transformation
-    # # 齐次变换矩阵, 既包含了旋转也包含了平移. 这个矩阵可以直接用于对点集 A 的每个点应用齐次坐标变换，将其映射到点集B
     T = np.identity(m + 1)
     T[:m, :m] = R
     T[:m, m] = t
@@ -152,16 +150,11 @@ def ICP_3D_reconstruct(source_data, target_data,
                        source_cluster, target_cluster,
                        matching_dict,
                        cluster_method='mclust',):
-    # print("matching_dict:", matching_dict)
+
     # print("source data shape:", source_data.shape)
     # print("target data shape:", target_data.shape)
     adata_slice1 = target_data[target_data.obs[cluster_method].isin([target_cluster])]
     adata_slice2 = source_data[source_data.obs[cluster_method].isin([source_cluster])]
-    # print("target data cluster:", np.unique(target_data.obs[cluster_method]))
-    # print("source data cluster:", np.unique(source_data.obs[cluster_method]))
-    # print("source section-{} shape:{}".format(source_cluster, adata_slice2.shape))
-    # print("target section-{} shape:{}".format(target_cluster, adata_slice1.shape))
-    # 从这里开始source全部标准为target,target标注为source
     source_as_dict = dict(zip(list(target_data.obs_names), range(0, target_data.shape[0])))
     target_as_dict = dict(zip(list(source_data.obs_names), range(0, source_data.shape[0])))
 
@@ -169,7 +162,6 @@ def ICP_3D_reconstruct(source_data, target_data,
     target_section_as_dict = dict(zip(list(adata_slice2.obs_names), range(0, adata_slice2.shape[0])))
 
     ## index number
-    # 在全部数据集中的index
     source_anchor_ind = list(map(lambda _: source_as_dict[_], adata_slice1.obs_names))
     target_anchor_ind = list(map(lambda _: target_as_dict[_], adata_slice2.obs_names))
 
@@ -181,7 +173,6 @@ def ICP_3D_reconstruct(source_data, target_data,
             key_points_src.append(v)
 
     # print("matching_dict len:", len(matching_dict))
-    # 转换为在部分数据集中的index
     MNN_ind_src = list(map(lambda _: source_section_as_dict[_], target_data.obs_names[key_points_src]))
     MNN_ind_dst = list(map(lambda _: target_section_as_dict[_], source_data.obs_names[key_points_dst]))
 
